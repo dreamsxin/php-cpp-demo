@@ -37,6 +37,73 @@ void my_dump_class(Php::Parameters &params)
 }
 
 /**
+ * MyCustomClass
+ */
+class MyCustomClass : public Php::Base // , public Php::Countable
+{
+private:
+    int _x = 3;
+    
+public:
+    MyCustomClass()
+    {
+        std::cout << "MyCustomClass::MyCustomClass()" << std::endl;
+    }
+
+    MyCustomClass(int value) : _x(value)
+    {
+        std::cout << "MyCustomClass::MyCustomClass(" << value << ")" << std::endl;
+    }
+
+    MyCustomClass(const MyCustomClass &that)
+    {
+        std::cout << "MyCustomClass::MyCustomClass copy constructor" << std::endl;
+    }
+    
+    virtual ~MyCustomClass()
+    {
+        std::cout << "MyCustomClass::~MyCustomClass" << std::endl;
+    }
+
+    virtual void __construct()
+    {
+        std::cout << "MyCustomClass::__construct" << std::endl;
+    }
+
+    virtual void __destruct()
+    {
+        std::cout << "MyCustomClass::__destruct" << std::endl;
+    }
+    
+    virtual Php::Value count() //override
+    {
+        return 33;
+    }
+
+    /**
+     * $a = ['a' => 1, 'b' => 2];
+     * $c = new MyClass;
+     * $c->loopArray($a);
+     */
+    void loop(Php::Parameters &params)
+    {
+        std::cout << "Array/Object contains " << params[0].size() << " items" << std::endl;
+        auto m = params[0].mapValue();
+
+        std::cout << "map contains " << m.size() << " items" << std::endl;
+        for(auto &i: m) {
+            std::cout << "key: " << i.first << " \t\tval: " << i.second << std::endl;
+        }
+    }
+
+    Php::Value toString()
+    {
+	return 0;
+    }
+};
+
+
+/**
  *  tell the compiler that the get_module is a pure C function
  */
 extern "C" {
@@ -65,6 +132,22 @@ extern "C" {
             Php::ByVal("c", "MyClass")
         });
 
+        // we are going to define a class
+        Php::Class<MyCustomClass> customClass("MyClass");
+
+        customClass.property("property1", "prop1");
+        customClass.property("property2", "prop2", Php::Protected);
+
+        customClass.method("loopArray", &MyCustomClass::loop, {
+            Php::ByVal("arr", Php::Type::Array)
+        });
+        customClass.method("loopObject", &MyCustomClass::loop, {
+            Php::ByVal("obj", Php::Type::Object)
+        });
+        customClass.method("__toString", &MyCustomClass::toString);
+	
+
+        extension.add(customClass);
         
         // return the extension
         return extension;
