@@ -9,6 +9,19 @@ void my_function_void()
     std::cout << "In my_function_void()" << std::endl;
 }
 
+/**
+* my_dump()
+*/
+void my_dump(Php::Parameters &params)
+{
+    std::cout << "In my_dump()" << std::endl;
+
+    for (unsigned int i = 0; i < params.size(); i++)
+    {
+        std::cout << "Parameter " << i << ": " << params[i] << std::endl;
+    }
+}
+
 
 /**
  *  tell the compiler that the get_module is a pure C function
@@ -28,7 +41,12 @@ extern "C" {
         // for the entire duration of the process (that's why it's static)
         static Php::Extension extension("myextension", "1.0");
 
-	extension.add("my_void_function", my_function_void);
+        extension.add("my_void_function", my_function_void);
+
+        extension.add("my_dump", my_dump, {
+            Php::ByVal("a", Php::Type::Numeric),
+            Php::ByVal("b", Php::Type::String)
+        });
         
         // @todo    add your own functions, classes, namespaces to the extension
         

@@ -30,6 +30,7 @@ NAME				=	myextension
 #
 
 INI_DIR				=	/etc/php5/conf.d
+PHP_CONFIG_DIR			=	/etc/php5/cli/conf.d
 
 
 #
@@ -41,7 +42,7 @@ INI_DIR				=	/etc/php5/conf.d
 #	this with a different fixed directory
 #
 
-EXTENSION_DIR		=	$(shell php-config --extension-dir)
+EXTENSION_DIR			=	$(shell php-config --extension-dir)
 
 
 #
@@ -129,6 +130,7 @@ ${OBJECTS}:
 install:		
 						${CP} ${EXTENSION} ${EXTENSION_DIR}
 						${CP} ${INI} ${INI_DIR}
+						${CP} ${INI} ${PHP_CONFIG_DIR}
 				
 clean:
 						${RM} ${EXTENSION} ${OBJECTS}
