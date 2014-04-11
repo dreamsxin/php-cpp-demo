@@ -76,7 +76,7 @@ public:
 	virtual Php::Value hello() //override
 	{
 		std::cout << "MyCustomClass::hello" << std::endl;
-		return 33;
+		return "hello";
 	}
 
 	/**
@@ -143,6 +143,7 @@ extern "C" {
 			Php::ByVal("obj", Php::Type::Object)
 		});
 		customClass.method("sayhello", &MyCustomClass::hello);
+		customClass.method("__toString", &MyCustomClass::hello);
 
 
 
