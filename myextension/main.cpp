@@ -25,7 +25,8 @@ void my_dump(Php::Parameters &params) {
  */
 void my_dump_class(Php::Parameters &params) {
 	std::cout << "In my_dump_class()" << std::endl;
-
+	
+	std::cout << "sayhello " << (params[0].call("sayhello")) << std::endl;
 	for (unsigned int i = 0; i < params.size(); i++) {
 		std::cout << "Parameter " << i << ": " << params[i] << std::endl;
 	}
@@ -72,8 +73,9 @@ public:
 		std::cout << "MyCustomClass::__destruct" << std::endl;
 	}
 
-	virtual Php::Value count() //override
+	virtual Php::Value hello() //override
 	{
+		std::cout << "MyCustomClass::hello" << std::endl;
 		return 33;
 	}
 
@@ -140,6 +142,8 @@ extern "C" {
 		customClass.method("loopObject", &MyCustomClass::loop,{
 			Php::ByVal("obj", Php::Type::Object)
 		});
+		customClass.method("sayhello", &MyCustomClass::hello);
+
 
 
 		extension.add(customClass);
