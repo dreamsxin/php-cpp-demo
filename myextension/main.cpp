@@ -53,6 +53,17 @@ Php::Value myDiv(Php::Parameters &params)
     return params[0] / params[1];
 }
 
+Php::Value callMyDiv(Php::Parameters &params)
+{
+    try {
+		return myDiv(params);
+	}
+	catch (Php::Exception &exception)
+    {
+        return "callMyDiv exception caught:"+exception.message();
+    }
+}
+
 /**
  * MyCustomClass
  */
@@ -145,6 +156,11 @@ extern "C" {
 		extension.add("my_hello", my_hello);
 		
         extension.add("myDiv", myDiv, {
+            Php::ByVal("a", Php::Type::Numeric, true),
+            Php::ByVal("b", Php::Type::Numeric, true)
+        });
+		
+        extension.add("callMyDiv", callMyDiv, {
             Php::ByVal("a", Php::Type::Numeric, true),
             Php::ByVal("b", Php::Type::Numeric, true)
         });
