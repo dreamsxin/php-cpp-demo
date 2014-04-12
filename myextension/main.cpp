@@ -203,8 +203,17 @@ extern "C" {
 		customClass.method("sayhello", &MyCustomClass::hello);
 		customClass.method("__toString", &MyCustomClass::hello);
 
-
 		extension.add(customClass);
+		
+		extension.add("Phalcon\\Utils\\my_hello", my_hello);
+		
+		Php::Namespace phalcon("Phalcon");        
+        Php::Namespace utils("Utils");
+        utils.add(customClass);
+		
+        phalcon.add(std::move(utils));
+		
+        extension.add(std::move(phalcon));
 
 		// return the extension
 		return extension;
