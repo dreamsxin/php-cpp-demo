@@ -2,6 +2,24 @@
 #include <iostream>
 #include <phpcpp.h>
 
+int invokeTotalCount = 0;
+int invokeDuringRequestCount = 0;
+
+void updateCounters() {
+	invokeTotalCount++;
+	invokeDuringRequestCount++;
+	std::cout << "invokeTotalCount " << invokeTotalCount << std::endl;
+	std::cout << "invokeDuringRequestCount " << invokeDuringRequestCount << std::endl;
+}
+
+Php::Value getInvokeTotalCount() {
+	return invokeTotalCount;
+}
+
+Php::Value getInvokeDuringRequestCount() {
+	return invokeDuringRequestCount;
+}
+
 /**
  * my_function_void()
  */
@@ -25,7 +43,7 @@ void my_dump(Php::Parameters &params) {
  */
 void my_dump_class(Php::Parameters &params) {
 	std::cout << "In my_dump_class()" << std::endl;
-	
+
 	std::cout << "sayhello " << (params[0].call("sayhello")) << std::endl;
 	for (unsigned int i = 0; i < params.size(); i++) {
 		std::cout << "Parameter " << i << ": " << params[i] << std::endl;
@@ -36,7 +54,7 @@ void my_dump_class(Php::Parameters &params) {
  * my_hello()
  */
 Php::Value my_hello() {
-		return "hello";
+	return "hello";
 }
 
 /**
@@ -44,24 +62,20 @@ Php::Value my_hello() {
  *  and that divides them. Division by zero is of course
  *  not permitted - it will throw an exception then
  */
-Php::Value myDiv(Php::Parameters &params)
-{
-    // division by zero is not permitted, throw an exception when this happens
-    if (params[1] == 0) throw Php::Exception("Division by zero");
+Php::Value myDiv(Php::Parameters &params) {
+	// division by zero is not permitted, throw an exception when this happens
+	if (params[1] == 0) throw Php::Exception("Division by zero");
 
-    // divide the two parameters
-    return params[0] / params[1];
+	// divide the two parameters
+	return params[0] / params[1];
 }
 
-Php::Value callMyDiv(Php::Parameters &params)
-{
-    try {
+Php::Value callMyDiv(Php::Parameters &params) {
+	try {
 		return myDiv(params);
+	} catch (Php::Exception &exception) {
+		return "callMyDiv exception caught:" + exception.message();
 	}
-	catch (Php::Exception &exception)
-    {
-        return "callMyDiv exception caught:"+exception.message();
-    }
 }
 
 /**
@@ -142,6 +156,15 @@ extern "C" {
 		// for the entire duration of the process (that's why it's static)
 		static Php::Extension extension("myextension", "1.0");
 
+		 // 每次调用执行
+		extension.onRequest([]() {
+			invokeDuringRequestCount = 0;
+		});
+
+		extension.add("updatecounters", updateCounters);
+		extension.add("get_invoke_totalcount", getInvokeTotalCount);
+		extension.add("get_invoke_during_request_count", getInvokeDuringRequestCount);
+		
 		extension.add("my_void_function", my_function_void);
 
 		extension.add("my_dump", my_dump,{
@@ -154,16 +177,16 @@ extern "C" {
 		});
 
 		extension.add("my_hello", my_hello);
-		
-        extension.add("myDiv", myDiv, {
-            Php::ByVal("a", Php::Type::Numeric, true),
-            Php::ByVal("b", Php::Type::Numeric, true)
-        });
-		
-        extension.add("callMyDiv", callMyDiv, {
-            Php::ByVal("a", Php::Type::Numeric, true),
-            Php::ByVal("b", Php::Type::Numeric, true)
-        });
+
+		extension.add("myDiv", myDiv,{
+			Php::ByVal("a", Php::Type::Numeric, true),
+			Php::ByVal("b", Php::Type::Numeric, true)
+		});
+
+		extension.add("callMyDiv", callMyDiv,{
+			Php::ByVal("a", Php::Type::Numeric, true),
+			Php::ByVal("b", Php::Type::Numeric, true)
+		});
 
 		// we are going to define a class
 		Php::Class<MyCustomClass> customClass("MyClass");
