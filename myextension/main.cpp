@@ -208,12 +208,12 @@ extern "C" {
 		extension.add("Phalcon\\Utils\\my_hello", my_hello);
 		
 		Php::Namespace phalcon("Phalcon");        
-        Php::Namespace utils("Utils");
-        utils.add(customClass);
+		Php::Namespace utils("Utils");
+		utils.add(customClass);
 		
-        phalcon.add(std::move(utils));
+		phalcon.add(utils);
 		
-        extension.add(std::move(phalcon));
+		extension.add(phalcon);
 
 		// return the extension
 		return extension;
