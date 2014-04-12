@@ -40,6 +40,20 @@ Php::Value my_hello() {
 }
 
 /**
+ *  Simple function that takes two numeric parameters,
+ *  and that divides them. Division by zero is of course
+ *  not permitted - it will throw an exception then
+ */
+Php::Value myDiv(Php::Parameters &params)
+{
+    // division by zero is not permitted, throw an exception when this happens
+    if (params[1] == 0) throw Php::Exception("Division by zero");
+
+    // divide the two parameters
+    return params[0] / params[1];
+}
+
+/**
  * MyCustomClass
  */
 class MyCustomClass : public Php::Base // , public Php::Countable
@@ -129,6 +143,11 @@ extern "C" {
 		});
 
 		extension.add("my_hello", my_hello);
+		
+        extension.add("myDiv", myDiv, {
+            Php::ByVal("a", Php::Type::Numeric, true),
+            Php::ByVal("b", Php::Type::Numeric, true)
+        });
 
 		// we are going to define a class
 		Php::Class<MyCustomClass> customClass("MyClass");
@@ -144,7 +163,6 @@ extern "C" {
 		});
 		customClass.method("sayhello", &MyCustomClass::hello);
 		customClass.method("__toString", &MyCustomClass::hello);
-
 
 
 		extension.add(customClass);
